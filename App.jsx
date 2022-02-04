@@ -1,72 +1,96 @@
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Alert,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import { useState } from "react/cjs/react.development";
+import React, { useState } from "react";
+import { View, StyleSheet, Text, FlatList } from "react-native";
 
-import Header from "./components/header";
-import TodoItem from "./components/todoItem";
-import Form from "./components/addTodo";
+import Task from "./components/task";
+import Form from "./components/form";
 
 export default function App() {
-  const [todos, setTodos] = useState([
-    { text: "buy coffee", key: 1 },
-    { text: "code", key: 2 },
-    { text: "sleep", key: 3 },
-    { text: "work out", key: 4 },
-  ]);
+  const [tasks, setTasks] = useState([]);
+
+  const addTask = (text) => {
+    setTasks([
+      ...tasks,
+      { text: text, key: Math.random(6).toString(), isDone: false },
+    ]);
+  };
 
   const deleteHandler = (key) => {
-    setTodos((prevTodos) => {
-      return prevTodos.filter((item) => item.key != key);
-    });
+    setTasks(tasks.filter((item) => item.key != key));
   };
 
-  const submitHandler = (text) => {
-    if (text.length > 5) {
-      setTodos((prevTodos) => {
-        return [{ text: text, key: Math.random().toString() }, ...prevTodos];
-      });
-    } else {
-      Alert.alert("Oops!", "New todo must be at least 5 characters long");
-    }
+  const setDone = (key) => {
+    const updatedTasks = tasks.map((item) => {
+      if (item.key == key) {
+        if (item.isDone === true) {
+          item.isDone = false;
+        } else {
+          item.isDone = true;
+        }
+        return item;
+      } else {
+        return item;
+      }
+    });
+
+    setTasks(updatedTasks);
   };
+
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View style={styles.container}>
-        <Header />
-        <View style={styles.content}>
-          <Form submitHandler={submitHandler} />
-          <View style={styles.list}>
-            <FlatList
-              data={todos}
-              renderItem={({ item }) => (
-                <TodoItem item={item} deleteHandler={deleteHandler} />
-              )}
-            />
+    <View style={styles.container}>
+      <Text style={styles.title}>Today's tasks</Text>
+      <View style={styles.content}>
+        {tasks.length === 0 ? (
+          <View style={styles.flex}>
+            <Text style={styles.errMsg}>No tasks yet !</Text>
           </View>
-        </View>
+        ) : (
+          <FlatList
+            style={styles.tasks}
+            data={tasks}
+            renderItem={({ item }) => (
+              <Task
+                deleteHandler={deleteHandler}
+                content={item.text}
+                num={item.key}
+                isDone={item.isDone}
+                setDone={setDone}
+              />
+            )}
+          />
+        )}
       </View>
-    </TouchableWithoutFeedback>
+      <Form addTask={addTask} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#E8EAED",
+    paddingTop: 80,
+    paddingHorizontal: 24,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
   },
   content: {
-    paddingVertical: 40,
-    paddingHorizontal: 25,
     flex: 1,
   },
-  list: {
-    marginTop: 15,
+  flex: {
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  errMsg: {
+    fontSize: 20,
+    color: "#444",
+    marginBottom: 100,
+  },
+  tasks: {
+    flex: 1,
+    marginVertical: 30,
   },
 });
