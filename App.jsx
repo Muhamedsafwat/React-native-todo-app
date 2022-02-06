@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Text, FlatList } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 
 import Task from "./components/task";
 import Form from "./components/form";
@@ -35,9 +41,18 @@ export default function App() {
     setTasks(updatedTasks);
   };
 
+  const clearTasks = () => {
+    setTasks([]);
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Today's tasks</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Today's tasks</Text>
+        <TouchableOpacity onPress={clearTasks}>
+          <Text style={styles.clear}>clear all</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.content}>
         {tasks.length === 0 ? (
           <View style={styles.flex}>
@@ -71,10 +86,20 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     paddingHorizontal: 24,
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
+  },
+  clear: {
+    color: "#2C91D4",
+    fontSize: 16,
+    padding: 5,
   },
   content: {
     flex: 1,
